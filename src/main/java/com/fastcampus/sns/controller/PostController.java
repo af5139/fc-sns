@@ -2,14 +2,19 @@ package com.fastcampus.sns.controller;
 
 import com.fastcampus.sns.controller.request.PostCreateRequest;
 import com.fastcampus.sns.controller.request.PostModifyRequest;
+import com.fastcampus.sns.controller.response.PostResponse;
 import com.fastcampus.sns.controller.response.Response;
+import com.fastcampus.sns.model.Post;
 import com.fastcampus.sns.service.PostService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -27,13 +32,27 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    public Response<Void> modify(@PathVariable Integer postId,@RequestBody PostModifyRequest request, Authentication authentication){
+    public Response<PostResponse> modify(@PathVariable Integer postId,@RequestBody PostModifyRequest request, Authentication authentication){
 
-        postService.modify(request.getTitle(), request.getBody(), authentication.getName(),postId);
+        Post post =postService.modify(request.getTitle(), request.getBody(), authentication.getName(),postId);
 
+        return Response.success(PostResponse.fromPost(post));
+    }
+
+    @DeleteMapping("/{postId}")
+    public Response<Void> delete(@PathVariable Integer postId, Authentication authentication){
+        postService.delete(authentication.getName(), postId);
         return Response.success();
     }
 
+    @GetMapping
+    public Response<Page<PostResponse>> list(Pageable pageable, Authentication authentication){
+        return Response.success(postService.list(pageable).map(PostResponse::fromPost));
+    }
 
+    @GetMapping("/my")
+    public Response<Page<PostResponse>> my(Pageable pageable, Authentication authentication){
+        return Response.success(postService.my(authentication.getName(),pageable).map(PostResponse::fromPost));
+    }
 
 }
