@@ -8,6 +8,9 @@ import com.fastcampus.sns.repository.UserEntityRepository;
 import com.fastcampus.sns.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,5 +59,9 @@ public class UserService {
         // 토큰 생성
         String token = JwtTokenUtils.doGenerateToken(userName,expiredTimeMs,secretKey);
         return token;
+    }
+
+    public Page<Void> alarmList(String userName, Pageable pageable){
+        return Page.empty();
     }
 }
